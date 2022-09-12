@@ -1,17 +1,19 @@
-# Stage 1
-FROM golang:1.19-alpine as builder 
+# The first stage was omitted considering the Makefile
 
-RUN mkdir /app
+# # Stage 1
+# FROM golang:1.19-alpine as builder 
 
-COPY . /app 
+# RUN mkdir /app
 
-WORKDIR /app 
+# COPY . /app 
 
-RUN CGO_ENABLED=0 go build -o brokerApp ./cmd/api
+# WORKDIR /app 
 
-RUN chmod +x /app/brokerApp
+# RUN CGO_ENABLED=0 go build -o brokerApp ./cmd/api
 
-# Stage 2
+# RUN chmod +x /app/brokerApp
+
+# # Stage 2
 FROM alpine:3.16.2
 
 RUN mkdir /app 
