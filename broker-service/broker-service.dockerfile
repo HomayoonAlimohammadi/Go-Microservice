@@ -18,6 +18,6 @@ FROM alpine:3.16.2
 
 RUN mkdir /app 
 
-COPY --from=builder /app/brokerApp /app 
+COPY brokerApp /app 
 
 CMD ["/app/brokerApp"]
