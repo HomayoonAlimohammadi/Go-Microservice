@@ -1,14 +1,14 @@
 FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
+AUTH_BINARY=authApp
 
 
-start_broker: stop_broker build_broker
+start_backend: stop_backend build_broker build_auth
 	@echo "Building (when required) and starting docker images..."
-	docker compose up --build -d
-	@echo "Docker images built and started!"
+	docker compose up --build
 
 ## down: stop docker compose
-stop_broker:
+stop_backend:
 	@echo "Stopping docker compose..."
 	docker compose down
 	@echo "Removing unnecessary Docker images..."
@@ -21,19 +21,25 @@ build_broker:
 	cd ../broker-service && env GOOS=linux CGO_ENABLED=0 go build -o ${BROKER_BINARY} ./cmd/api
 	@echo "Done!"
 
+## build_auth: builds the auth binary as a linux executable
+build_auth:
+	@echo "Building auth binary..."
+	cd ../authentication-service && env GOOS=linux CGO_ENABLED=0 go build -o ${AUTH_BINARY} ./cmd/api
+	@echo "Done!"
+
 ## build_front: builds the front end binary
-build_front:
+build_frontend:
 	@echo "Building front end binary..."
 	cd ../front-end && env CGO_ENABLED=0 go build -o ${FRONT_END_BINARY} ./cmd/web
 	@echo "Done!"
 
 ## start: starts the front end
-start_front: build_front
+start_frontend: build_frontend
 	@echo "Starting front end"
-	cd ../front-end && ./${FRONT_END_BINARY} &
+	cd ../front-end && ./${FRONT_END_BINARY}
 
 ## stop: stop the front end
-stop_front:
+stop_frontend:
 	@echo "Stopping front end..."
 	@-pkill -SIGTERM -f "./${FRONT_END_BINARY}"
 	@echo "Stopped front end!"
