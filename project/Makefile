@@ -3,9 +3,10 @@ BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
 LOGGER_BINARY=loggerApp
 MAIL_BINARY=mailApp
+LISTENER_BINARY=listenerApp
 
 
-start_backend: stop_backend build_broker build_auth build_logger build_mailer
+start_backend: stop_backend build_broker build_auth build_logger build_mailer build_listener
 	@echo "Building (when required) and starting docker images..."
 	docker compose up --build
 
@@ -23,12 +24,20 @@ build_broker:
 	cd ../broker-service && env GOOS=linux CGO_ENABLED=0 go build -o ${BROKER_BINARY} ./cmd/api
 	@echo "Done!"
 
+## build_listener: builds the listener binary as a linux executable
+build_listener:
+	@echo "Building listener binary..."
+	cd ../listener-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LISTENER_BINARY} .
+	@echo "Done!"
+
+
 ## build_logger: builds the logger binary as a linux executable
 build_logger:
 	@echo "Building logger binary..."
 	cd ../logger-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LOGGER_BINARY} ./cmd/api
 	@echo "Done!"
 
+## build_mailer: builds the mail binary as a linux executable
 build_mailer:
 	@echo "Building mailer binary..."
 	cd ../mail-service && env GOOS=linux CGO_ENABLED=0 go build -o ${MAIL_BINARY} ./cmd/api

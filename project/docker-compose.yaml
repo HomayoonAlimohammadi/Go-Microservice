@@ -79,7 +79,7 @@ services:
     deploy:
       mode: replicated 
       replicas: 1
-    container_name: MailService
+    container_name: MailApp
     
   rabbitmq:
     image: "rabbitmq:3.10-alpine"
@@ -92,3 +92,12 @@ services:
     volumes:
       - ./db-data/rabbitmq/:/var/lib/rabbitmq/
     container_name: RabbitMQ
+
+  listener-service:
+    build:
+      context: ./../listener-service 
+      dockerfile: ./../listener-service/listener-service.dockerfile 
+    deploy:
+      mode: replicated 
+      replicas: 1
+    container_name: ListernerApp
