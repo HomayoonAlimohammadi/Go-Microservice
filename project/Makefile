@@ -2,9 +2,10 @@ FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
 LOGGER_BINARY=loggerApp
+MAIL_BINARY=mailApp
 
 
-start_backend: stop_backend build_broker build_auth build_logger
+start_backend: stop_backend build_broker build_auth build_logger build_mailer
 	@echo "Building (when required) and starting docker images..."
 	docker compose up --build
 
@@ -26,6 +27,11 @@ build_broker:
 build_logger:
 	@echo "Building logger binary..."
 	cd ../logger-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LOGGER_BINARY} ./cmd/api
+	@echo "Done!"
+
+build_mailer:
+	@echo "Building mailer binary..."
+	cd ../mail-service && env GOOS=linux CGO_ENABLED=0 go build -o ${MAIL_BINARY} ./cmd/api
 	@echo "Done!"
 
 ## build_auth: builds the auth binary as a linux executable
