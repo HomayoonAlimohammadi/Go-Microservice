@@ -67,6 +67,7 @@ services:
     ports:
       - "1025:1025"
       - "8025:8025"
+    container_name: MailHog
 
   mail-service:
     build:
@@ -80,5 +81,14 @@ services:
       replicas: 1
     container_name: MailService
     
-    
-    
+  rabbitmq:
+    image: "rabbitmq:3.10-alpine"
+    ports: 
+      - "5672:5672"
+    restart: always
+    deploy: 
+      mode: replicated 
+      replicas: 1
+    volumes:
+      - ./db-data/rabbitmq/:/var/lib/rabbitmq/
+    container_name: RabbitMQ
