@@ -6,7 +6,7 @@ LOGGER_BINARY=loggerApp
 
 start_backend: stop_backend build_broker build_auth build_logger
 	@echo "Building (when required) and starting docker images..."
-	docker compose up --build -d
+	docker compose up --build
 
 ## down: stop docker compose
 stop_backend:
