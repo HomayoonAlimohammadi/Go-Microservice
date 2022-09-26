@@ -1,11 +1,12 @@
 FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
+LOGGER_BINARY=loggerApp
 
 
-start_backend: stop_backend build_broker build_auth
+start_backend: stop_backend build_broker build_auth build_logger
 	@echo "Building (when required) and starting docker images..."
-	docker compose up --build
+	docker compose up --build -d
 
 ## down: stop docker compose
 stop_backend:
@@ -19,6 +20,12 @@ stop_backend:
 build_broker:
 	@echo "Building broker binary..."
 	cd ../broker-service && env GOOS=linux CGO_ENABLED=0 go build -o ${BROKER_BINARY} ./cmd/api
+	@echo "Done!"
+
+## build_logger: builds the logger binary as a linux executable
+build_logger:
+	@echo "Building logger binary..."
+	cd ../logger-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LOGGER_BINARY} ./cmd/api
 	@echo "Done!"
 
 ## build_auth: builds the auth binary as a linux executable
