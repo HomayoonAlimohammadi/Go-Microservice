@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"logger-service/data"
+	"net"
 	"net/http"
+	"net/rpc"
 	"os"
 	"time"
 
@@ -50,9 +52,11 @@ func main() {
 		Models: data.New(client),
 	}
 
-	// start web server
-	// go app.serve()
+	// Register and start the RPC Server
+	err = rpc.Register(new(RPCServer))
+	go app.rpcListen()
 
+	// start web server
 	log.Println("Starting logger-service on port", webPort)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
@@ -65,16 +69,20 @@ func main() {
 	}
 }
 
-func (app *Config) serve() {
-	log.Println("Starting logger-service on port", webPort)
-	server := &http.Server{
-		Addr:    fmt.Sprintf(":%s", webPort),
-		Handler: app.routes(),
-	}
-
-	err := server.ListenAndServe()
+func (app *Config) rpcListen() error {
+	log.Println("Starting RPC Server on port ", rpcPort)
+	listen, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", rpcPort))
 	if err != nil {
-		log.Panic(err)
+		return err
+	}
+	defer listen.Close()
+
+	for {
+		rpcConn, err := listen.Accept()
+		if err != nil {
+			log.Println("error while accepting on the RPC Server...", err)
+		}
+		go rpc.ServeConn(rpcConn)
 	}
 }
 
