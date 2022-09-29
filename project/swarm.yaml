@@ -3,9 +3,7 @@ version: '3'
 services:
 
   broker-service:
-    build:
-      context: ./../broker-service
-      dockerfile: ./../broker-service/broker-service.dockerfile
+    image: homayoonalimohammadi/broker-service:1.0
     restart: always
     ports:
       - "8080:80"
@@ -15,17 +13,15 @@ services:
     container_name: BrokerApp
 
   authentication-service:
-    build:
-      context: ./../authentication-service
-      dockerfile: ./../authentication-service/authentication-service.dockerfile
+    image: homayoonalimohammadi/authentication-service:1.0
     restart: always
     ports:
       - "8081:80"
     deploy:
       mode: replicated
       replicas: 1
-    env_file:
-      - ./authentication-service.env
+    environment:
+      DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
     depends_on:
       - postgres
     container_name: AuthApp
@@ -33,32 +29,40 @@ services:
     
   postgres:
     image: "postgres:12.12"
+    restart: always
     ports:
       - "5432:5432"
-    restart: always
-    env_file:
-      - ./postgres.env
+    environmenet:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: users
     volumes:
       - ./db-data/postgres/:/var/lib/postgresql/data/
+    deploy: 
+      mode: global 
     container_name: PostgresDB
 
   mongo:
     image: "mongo:4.2.16-bionic"
     ports:
       - "27017:27017"
-    env_file:
-      - ./logger-service.env
+    environment:
+      MONGO_INITDB_DATABASE: logs 
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    deploy:
+      mode: global 
     volumes:
      - ./db-data/mongo/:/data/db
     container_name: MongoDB
 
   logger-service:
-    build:
-      context: ./../logger-service
-      dockerfile: ./../logger-service/logger-service.dockerfile
+    image: homayoonalimohammadi/logger-service:1.0
     restart: always
-    env_file:
-      - ./logger-service.env
+    environment:
+      MONGO_INITDB_DATABASE: "logs" 
+      MONGO_INITDB_ROOT_USERNAME: "admin"
+      MONGO_INITDB_ROOT_PASSWORD: "password"
     deploy:
       mode: replicated 
       replicas: 1
@@ -67,17 +71,23 @@ services:
   mailhog:
     image: "mailhog/mailhog:v1.0.1"
     ports:
-      - "1025:1025"
       - "8025:8025"
+    deploy:
+      mode: global 
     container_name: MailHog
 
   mail-service:
-    build:
-      context: ./../mail-service
-      dockerfile: ./../mail-service/mail-service.dockerfile
+    image: homayooalimohammadi/mail-service:1.0
     restart: always 
-    env_file: 
-      - ./mail-service.env
+    environment:
+      MAIL_DOMAIN: localhost
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      MAIL_ENCRYPTION: none
+      MAIL_FROM_NAME: "Homayoon Alimohammadi"
+      MAIL_FROM_ADDRESS: "homayoon.alimohammadi@divar.ir"
     deploy:
       mode: replicated 
       replicas: 1
@@ -89,16 +99,11 @@ services:
       - "5672:5672"
     restart: always
     deploy: 
-      mode: replicated 
-      replicas: 1
-    volumes:
-      - ./db-data/rabbitmq/:/var/lib/rabbitmq/
+      mode: global
     container_name: RabbitMQ
 
   listener-service:
-    build:
-      context: ./../listener-service 
-      dockerfile: ./../listener-service/listener-service.dockerfile 
+    image: homayoonalimohammadi/listener-service:1.0
     deploy:
       mode: replicated 
       replicas: 1
